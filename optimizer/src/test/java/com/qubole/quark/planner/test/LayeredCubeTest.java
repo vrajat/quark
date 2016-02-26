@@ -322,4 +322,20 @@ public class LayeredCubeTest {
             "INNER JOIN TPCDS.STORE_SALES ON t.D_DATE_SK = STORE_SALES.SS_SOLD_DATE_SK " +
             "GROUP BY t.D_YEAR, t.D_MOY");
   }
+
+  @Test
+  public void aggSpanCubes() throws QuarkException, SQLException {
+    String sql = "select d_year, d_moy, sum(ss_sales_price) " +
+        " from tpcds.store_sales join tpcds.date_dim on ss_sold_date_sk = d_date_sk " +
+        "where d_year = 2015 and d_moy >= 8 and d_moy <= 12 group by d_year, d_moy";
+
+    QuarkTestUtil.checkParsedSql(
+        sql,
+        parser,
+        "SELECT t.D_YEAR, t.D_MOY, SUM(STORE_SALES.SS_SALES_PRICE) " +
+            "FROM (SELECT * FROM TPCDS.DATE_DIM WHERE D_YEAR = 2015 AND D_MOY >= 8 AND D_MOY <= " +
+            "12) AS t INNER JOIN TPCDS.STORE_SALES ON t.D_DATE_SK = STORE_SALES.SS_SOLD_DATE_SK " +
+            "GROUP BY t.D_YEAR, t.D_MOY");
+  }
+
 }
