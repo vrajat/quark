@@ -326,4 +326,84 @@ public class PartialCubeTest {
               "CUSTOMER_DEMOGRAPHICS.CD_GENDER");
     }
   }
+
+  public static class filterOnNonMandatory {
+    @BeforeClass
+    public static void setUpClass() throws Exception {
+      parser = PartialCubeTest.getParser("where CD_GENDER = 'M'");
+    }
+
+    @Test
+    public void filterAndDimensionMatch() throws QuarkException, SQLException {
+      QuarkTestUtil.checkParsedSql(
+          "select d_year, d_moy, d_dom, cd_gender, sum(ss_sales_price) " +
+              " from tpcds.store_sales join tpcds.date_dim on ss_sold_date_sk = d_date_sk " +
+              " join tpcds.customer_demographics on ss_cdemo_sk = cd_demo_sk " +
+              "where CD_GENDER = 'M' group by " +
+              "d_year, d_moy, d_dom, cd_gender",
+          parser,
+          "SELECT D_YEAR, D_MOY, D_DOM, CD_GENDER, SUM(SUM_SALES_PRICE) " +
+              "FROM TPCDS.STORE_SALES_CUBE_PARTIAL WHERE CD_GENDER = 'M'" +
+              " AND GROUPING_ID = '60' GROUP BY D_YEAR, D_MOY, D_DOM, CD_GENDER");
+    }
+
+    @Test
+    public void filterOnlyMatch() throws QuarkException, SQLException {
+      QuarkTestUtil.checkParsedSql(
+          "select d_year, d_moy, d_dom, sum(ss_sales_price) " +
+              " from tpcds.store_sales join tpcds.date_dim on ss_sold_date_sk = d_date_sk " +
+              " join tpcds.customer_demographics on ss_cdemo_sk = cd_demo_sk " +
+              "where CD_GENDER = 'M' group by " +
+              "d_year, d_moy, d_dom",
+          parser,
+          "SELECT D_YEAR, D_MOY, D_DOM, SUM(SUM_SALES_PRICE) " +
+              "FROM TPCDS.STORE_SALES_CUBE_PARTIAL WHERE CD_GENDER = 'M'" +
+              " AND GROUPING_ID = '28' GROUP BY D_YEAR, D_MOY, D_DOM");
+    }
+
+    @Test
+    public void dimensionOnly() throws QuarkException, SQLException {
+      QuarkTestUtil.checkParsedSql(
+          "select d_year, d_moy, d_dom, cd_gender, sum(ss_sales_price) " +
+              " from tpcds.store_sales join tpcds.date_dim on ss_sold_date_sk = d_date_sk " +
+              " join tpcds.customer_demographics on ss_cdemo_sk = cd_demo_sk " +
+              "where CD_GENDER = 'F' group by " +
+              "d_year, d_moy, d_dom, cd_gender",
+          parser,
+          "SELECT DATE_DIM.D_YEAR, DATE_DIM.D_MOY, DATE_DIM.D_DOM, t0.CD_GENDER, SUM(t0" +
+              ".SS_SALES_PRICE) FROM TPCDS.DATE_DIM INNER JOIN (SELECT STORE_SALES.SS_SOLD_DATE_SK," +
+              " STORE_SALES.SS_SOLD_TIME_SK, STORE_SALES.SS_ITEM_SK, STORE_SALES.SS_CUSTOMER_SK," +
+              " STORE_SALES.SS_CDEMO_SK, STORE_SALES.SS_HDEMO_SK, STORE_SALES.SS_ADDR_SK, " +
+              "STORE_SALES.SS_STORE_SK, STORE_SALES.SS_PROMO_SK, STORE_SALES.SS_TICKET_NUMBER, " +
+              "STORE_SALES.SS_QUANTITY, STORE_SALES.SS_WHOLESALE_COST, STORE_SALES.SS_LIST_PRICE," +
+              " STORE_SALES.SS_SALES_PRICE, STORE_SALES.SS_EXT_DISCOUNT_AMT," +
+              " STORE_SALES.SS_EXT_SALES_PRICE, STORE_SALES.SS_EXT_WHOLESALE_COST," +
+              " STORE_SALES.SS_EXT_LIST_PRICE, STORE_SALES.SS_EXT_TAX, STORE_SALES.SS_COUPON_AMT," +
+              " STORE_SALES.SS_NET_PAID, STORE_SALES.SS_NET_PAID_INC_TAX," +
+              " STORE_SALES.SS_NET_PROFIT, t.CD_DEMO_SK, t.CD_GENDER, t.CD_MARITAL_STATUS," +
+              " t.CD_EDUCATION_STATUS, t.CD_PURCHASE_ESTIMATE, t.CD_CREDIT_RATING," +
+              " t.CD_DEP_COUNT, t.CD_DEP_EMPLOYED_COUNT, t.CD_DEP_COLLEGE_COUNT FROM (SELECT * " +
+              "FROM TPCDS.CUSTOMER_DEMOGRAPHICS WHERE CD_GENDER = 'F') AS t INNER JOIN " +
+              "TPCDS.STORE_SALES ON t.CD_DEMO_SK = STORE_SALES.SS_CDEMO_SK) AS t0 ON " +
+              "DATE_DIM.D_DATE_SK = t0.SS_SOLD_DATE_SK GROUP BY DATE_DIM.D_YEAR, DATE_DIM.D_MOY," +
+              " DATE_DIM.D_DOM, t0.CD_GENDER");
+    }
+
+    @Test
+    public void noFilter() throws QuarkException, SQLException {
+      QuarkTestUtil.checkParsedSql(
+          "select d_year, d_moy, d_dom, cd_gender, sum(ss_sales_price) " +
+              " from tpcds.store_sales join tpcds.date_dim on ss_sold_date_sk = d_date_sk " +
+              " join tpcds.customer_demographics on ss_cdemo_sk = cd_demo_sk " +
+              "group by d_year, d_moy, d_dom, cd_gender",
+          parser,
+          "SELECT DATE_DIM.D_YEAR, DATE_DIM.D_MOY, DATE_DIM.D_DOM, " +
+              "CUSTOMER_DEMOGRAPHICS.CD_GENDER, SUM(STORE_SALES.SS_SALES_PRICE) FROM " +
+              "TPCDS.DATE_DIM INNER JOIN (TPCDS.STORE_SALES INNER JOIN " +
+              "TPCDS.CUSTOMER_DEMOGRAPHICS ON STORE_SALES.SS_CDEMO_SK = " +
+              "CUSTOMER_DEMOGRAPHICS.CD_DEMO_SK) ON DATE_DIM.D_DATE_SK = STORE_SALES.SS_" +
+              "SOLD_DATE_SK GROUP BY DATE_DIM.D_YEAR, DATE_DIM.D_MOY, DATE_DIM.D_DOM, " +
+              "CUSTOMER_DEMOGRAPHICS.CD_GENDER");
+    }
+  }
 }
