@@ -12,22 +12,29 @@
  * See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
-package com.qubole.quark.server;
+package com.qubole.quark.server.configuration;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * POJO for server specific configurations.
+ * Stores the credentials of database provided in the JSON template.
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class ServerConfig {
-  public final int port;
+public class DbCredentials {
+  public final String url;
+  public final String username;
+  public final String password;
+  public final String encryptionKey;
 
   @JsonCreator
-  public ServerConfig(@JsonProperty("port") int port) {
-    this.port = port;
+  public DbCredentials(@JsonProperty("url") String url,
+                       @JsonProperty("username") String username,
+                       @JsonProperty("password") String password,
+                       @JsonProperty("encrypt_key") String encrpytionKey) {
+    this.url = url;
+    this.username = username;
+    this.password = password;
+    this.encryptionKey = encrpytionKey;
   }
 }
+
