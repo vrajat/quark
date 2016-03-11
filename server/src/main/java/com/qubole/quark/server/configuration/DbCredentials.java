@@ -17,13 +17,29 @@ package com.qubole.quark.server.configuration;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import io.dropwizard.Configuration;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
 /**
  * Stores the credentials of database provided in the JSON template.
  */
-public class DbCredentials {
+public class DbCredentials extends Configuration {
+  @Valid
+  @NotNull
   public final String url;
+
+  @Valid
+  @NotNull
   public final String username;
+
+  @Valid
+  @NotNull
   public final String password;
+
+  @Valid
+  @NotNull
   public final String encryptionKey;
 
   @JsonCreator
