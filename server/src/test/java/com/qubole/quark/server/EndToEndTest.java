@@ -17,10 +17,16 @@ package com.qubole.quark.server;
 
 import com.qubole.quark.jdbc.QuarkDriver;
 import com.qubole.quark.jdbc.ThinClientUtil;
+import com.qubole.quark.server.configuration.QuarkConfiguration;
+import io.dropwizard.testing.ResourceHelpers;
+import io.dropwizard.testing.junit.DropwizardAppRule;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.flywaydb.core.Flyway;
 import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -34,13 +40,31 @@ import static org.hamcrest.Matchers.equalTo;
 /**
  * Created by adeshr on 2/24/16.
  */
-public abstract class EndToEndTest {
-  protected static final Log LOG = LogFactory.getLog(Main.class);
+public class EndToEndTest {
+  protected static final Log LOG = LogFactory.getLog(EndToEndTest.class);
 
-  public static Main main;
-  public static String h2Url;
-  public static String cubeUrl;
-  public static String viewUrl;
+  @ClassRule
+  public static final DropwizardAppRule<QuarkConfiguration> RULE =
+      new DropwizardAppRule<>(QuarkApp.class, ResourceHelpers.resourceFilePath("dbCatalog.json"));
+
+  private static String dbUrl = "jdbc:h2:mem:DbTpcds;DB_CLOSE_DELAY=-1";
+  private static String h2Url = "jdbc:h2:mem:DbServerTpcdsTest;DB_CLOSE_DELAY=-1";
+  private static String cubeUrl = "jdbc:h2:mem:DbServerTpcdsCubes;DB_CLOSE_DELAY=-1";
+  private static String viewUrl = "jdbc:h2:mem:DbServerTpcdsViews;DB_CLOSE_DELAY=-1";
+
+  @BeforeClass
+  public static void setUp() throws SQLException, IOException, URISyntaxException,
+      ClassNotFoundException {
+
+    Flyway flyway = new Flyway();
+    flyway.setDataSource(dbUrl, "sa", "");
+    flyway.migrate();
+
+    setupTables(dbUrl, "tpcds_db.sql");
+    setupTables(h2Url, "tpcds.sql");
+    setupTables(cubeUrl, "tpcds_cubes.sql");
+    setupTables(viewUrl, "tpcds_views.sql");
+  }
 
   public static void setupTables(String dbUrl, String filename)
       throws ClassNotFoundException, SQLException, IOException, URISyntaxException {
@@ -58,13 +82,6 @@ public abstract class EndToEndTest {
     String sql = new String(java.nio.file.Files.readAllBytes(resPath), "UTF8");
 
     stmt.execute(sql);
-  }
-
-  @AfterClass
-  public static void afterClass() {
-    if (main.getServer() != null) {
-      main.getServer().stop();
-    }
   }
 
   @Test

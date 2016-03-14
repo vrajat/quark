@@ -1,9 +1,9 @@
 {
-  "dbCredentials" : {
+  "database" : {
     "url": "jdbc:h2:mem:MigrationTest;DB_CLOSE_DELAY=-1",
-    "username": "sa",
+    "user": "sa",
     "password": "",
-    "encrypt_key": "key"
+    "encryptionKey": "key"
   },
-  "port": 8800
+  "port": 8900
 }

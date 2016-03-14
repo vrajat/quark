@@ -1,9 +1,9 @@
 {
-  "dbCredentials" : {
+  "database" : {
     "url" : "jdbc:h2:mem:DbTpcds;DB_CLOSE_DELAY=-1",
-    "username" : "sa",
+    "user" : "sa",
     "password" : "",
-    "encrypt_key" : "key"
+    "encryptionKey" : "key"
   },
-  "schemaFactory" : "com.qubole.quark.catalog.db.SchemaFactory"
+  "port": 8800
 }

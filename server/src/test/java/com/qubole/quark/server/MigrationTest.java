@@ -17,7 +17,11 @@ package com.qubole.quark.server;
 
 import com.qubole.quark.jdbc.ThinClientUtil;
 
+import com.qubole.quark.server.configuration.QuarkConfiguration;
+import io.dropwizard.testing.ResourceHelpers;
+import io.dropwizard.testing.junit.DropwizardAppRule;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -35,17 +39,12 @@ import static org.hamcrest.Matchers.equalTo;
  */
 public class MigrationTest {
 
-  public static Main main;
   public static String dbUrl = "jdbc:h2:mem:MigrationTest;DB_CLOSE_DELAY=-1";
 
-  @BeforeClass
-  public static void setUp() {
-    String[] args = new String[1];
-    args[0] = JsonEndToEndTest.class.getResource("/migrationTest.json").getPath();
-    main = new Main(args);
-
-    new Thread(main).start();
-  }
+  @ClassRule
+  public static final DropwizardAppRule<QuarkConfiguration> RULE =
+      new DropwizardAppRule<>(QuarkApp.class, ResourceHelpers.resourceFilePath("migrationTest" +
+          ".json"));
 
   @Test
   public void testMigration() throws SQLException, ClassNotFoundException, InterruptedException,
