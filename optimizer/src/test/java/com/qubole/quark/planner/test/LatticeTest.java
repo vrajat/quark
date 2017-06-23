@@ -18,12 +18,9 @@ package com.qubole.quark.planner.test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.qubole.quark.QuarkException;
-import com.qubole.quark.planner.QuarkCube;
+import com.qubole.quark.planner.*;
 import com.qubole.quark.planner.QuarkCube.Dimension;
-import com.qubole.quark.planner.MetadataSchema;
-import com.qubole.quark.planner.QuarkSchema;
 import com.qubole.quark.planner.parser.SqlQueryParser;
-import com.qubole.quark.planner.TestFactory;
 import com.qubole.quark.planner.test.utilities.QuarkTestUtil;
 import com.qubole.quark.sql.QueryContext;
 import org.junit.BeforeClass;
@@ -149,13 +146,11 @@ public class LatticeTest {
     public SchemaFactory() {
       super(new Foodmart("foodmart".toUpperCase()));
     }
-    public List<QuarkSchema> create(Properties info) {
+    public TestFactoryResult create(Properties info) throws QuarkException {
       Tpcds tpcds = new Tpcds("TPCDS");
       CubeSchema cubeSchema = new CubeSchema();
-      return new ImmutableList.Builder<QuarkSchema>()
-          .add(this.getDefaultSchema())
-          .add(tpcds)
-          .add(cubeSchema).build();
+      return new TestFactoryResult(ImmutableList.of(this.getDefaultSchema(), tpcds), cubeSchema,
+              this.getDefaultSchema());
     }
   }
 

@@ -16,8 +16,8 @@
 package com.qubole.quark.planner.test;
 
 import com.google.common.collect.ImmutableList;
+import com.qubole.quark.planner.*;
 import com.qubole.quark.planner.parser.SqlQueryParser;
-import com.qubole.quark.planner.TestFactory;
 import org.apache.calcite.rel.RelNode;
 import org.apache.calcite.schema.Table;
 
@@ -27,9 +27,6 @@ import org.junit.Test;
 import com.google.common.collect.ImmutableMap;
 
 import com.qubole.quark.QuarkException;
-import com.qubole.quark.planner.QuarkColumn;
-import com.qubole.quark.planner.QuarkSchema;
-import com.qubole.quark.planner.QuarkTable;
 import com.qubole.quark.planner.test.utilities.QuarkTestUtil;
 
 import org.slf4j.Logger;
@@ -86,8 +83,8 @@ public class QueryTest {
       super(new QueryTestSchema("TEST"));
     }
     @Override
-    public List<QuarkSchema> create(Properties info) throws QuarkException {
-      return ImmutableList.of(this.getDefaultSchema());
+    public TestFactoryResult create(Properties info) throws QuarkException {
+      return new TestFactoryResult(ImmutableList.of(this.getDefaultSchema()), null, this.getDefaultSchema());
     }
   }
 

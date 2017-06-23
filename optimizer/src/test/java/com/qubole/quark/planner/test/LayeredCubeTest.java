@@ -18,12 +18,9 @@ package com.qubole.quark.planner.test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.qubole.quark.QuarkException;
-import com.qubole.quark.planner.MetadataSchema;
+import com.qubole.quark.planner.*;
 import com.qubole.quark.planner.parser.SqlQueryParser;
-import com.qubole.quark.planner.QuarkCube;
 import com.qubole.quark.planner.QuarkCube.Dimension;
-import com.qubole.quark.planner.QuarkSchema;
-import com.qubole.quark.planner.TestFactory;
 import com.qubole.quark.planner.test.utilities.QuarkTestUtil;
 import com.qubole.quark.sql.QueryContext;
 import org.junit.BeforeClass;
@@ -134,11 +131,9 @@ public class LayeredCubeTest {
     public SchemaFactory() {
       super(new Tpcds("TPCDS"));
     }
-    public List<QuarkSchema> create(Properties info) {
+    public TestFactoryResult create(Properties info) throws QuarkException {
       CubeSchema cubeSchema = new CubeSchema();
-      return new ImmutableList.Builder<QuarkSchema>()
-          .add(this.getDefaultSchema())
-          .add(cubeSchema).build();
+      return new TestFactoryResult(ImmutableList.of(this.getDefaultSchema()), cubeSchema, this.getDefaultSchema());
     }
   }
 

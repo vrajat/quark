@@ -39,6 +39,7 @@ import com.qubole.quark.planner.QuarkFactory;
 import com.qubole.quark.planner.QuarkFactoryResult;
 import com.qubole.quark.planner.QuarkSchema;
 import com.qubole.quark.planner.TestFactory;
+import com.qubole.quark.planner.TestFactoryResult;
 import com.qubole.quark.plugin.DataSource;
 
 import org.slf4j.Logger;
@@ -118,20 +119,26 @@ public class QueryContext {
         defaultSchema = parseDefaultSchema(info);
       } else {
         final TestFactory schemaFactory = (TestFactory) schemaFactoryClazz.newInstance();
-        List<QuarkSchema> schemas = schemaFactory.create(info);
-        for (QuarkSchema schema : schemas) {
+        TestFactoryResult testFactoryResult = schemaFactory.create(info);
+        for (QuarkSchema schema : testFactoryResult.schemas) {
           SchemaPlus schemaPlus = rootSchema.add(schema.getName(), schema);
           schema.setSchemaPlus(schemaPlus);
         }
+
+        SchemaPlus metadataPlus = rootSchema.add(testFactoryResult.metadataSchema.getName(),
+            testFactoryResult.metadataSchema);
+        testFactoryResult.metadataSchema.setSchemaPlus(metadataPlus);
+
         if (info.getProperty("defaultSchema") == null) {
           throw new QuarkException(new Throwable("Default schema has to be specified"));
         }
         final ObjectMapper mapper = new ObjectMapper();
         defaultSchema =
               Arrays.asList(mapper.readValue(info.getProperty("defaultSchema"), String[].class));
-        for (QuarkSchema schema : schemas) {
+        for (QuarkSchema schema : testFactoryResult.schemas) {
           schema.initialize(this);
         }
+        testFactoryResult.metadataSchema.initialize(this);
       }
     } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
         | IOException e) {

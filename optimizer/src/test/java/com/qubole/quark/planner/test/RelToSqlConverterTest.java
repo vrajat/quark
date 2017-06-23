@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableList;
 import com.qubole.quark.QuarkException;
 import com.qubole.quark.planner.QuarkSchema;
 import com.qubole.quark.planner.TestFactory;
+import com.qubole.quark.planner.TestFactoryResult;
 import com.qubole.quark.planner.test.utilities.QuarkTestUtil;
 import org.apache.calcite.sql.SqlDialect;
 import org.apache.calcite.sql.parser.SqlParseException;
@@ -47,8 +48,8 @@ public class RelToSqlConverterTest {
     public SchemaFactory() {
       super(new Foodmart("foodmart".toUpperCase()));
     }
-    public List<QuarkSchema> create(Properties info) {
-      return ImmutableList.of(this.getDefaultSchema());
+    public TestFactoryResult create(Properties info)  throws QuarkException {
+      return new TestFactoryResult(ImmutableList.of(this.getDefaultSchema()), null, this.getDefaultSchema());
     }
   }
 

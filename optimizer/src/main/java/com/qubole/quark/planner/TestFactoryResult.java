@@ -17,20 +17,27 @@ package com.qubole.quark.planner;
 
 import com.qubole.quark.QuarkException;
 
-import java.util.Properties;
+import java.util.List;
 
 /**
- * Created by rajatv on 11/12/15.
+ * Created by rajatv on 6/20/17.
  */
-public abstract class TestFactory {
-  private final QuarkSchema defaultSchema;
+public class TestFactoryResult {
+  public final List<QuarkSchema> schemas;
+  public final MetadataSchema metadataSchema;
+  public final QuarkSchema defaultSchema;
 
-  protected TestFactory(QuarkSchema defaultSchema) {
+  public TestFactoryResult(List<QuarkSchema> quarkSchemas, MetadataSchema
+      metadataSchema, QuarkSchema defaultSchema) throws QuarkException {
+    if (!quarkSchemas.isEmpty() && defaultSchema == null) {
+      throw new QuarkException("Default Schema is required");
+    }
+    this.schemas = quarkSchemas;
     this.defaultSchema = defaultSchema;
-  }
-  public abstract TestFactoryResult create(Properties info) throws QuarkException;
-
-  public QuarkSchema getDefaultSchema() {
-    return defaultSchema;
+    if (metadataSchema != null) {
+      this.metadataSchema = metadataSchema;
+    } else {
+      this.metadataSchema = MetadataSchema.empty();
+    }
   }
 }

@@ -183,28 +183,28 @@ public class SchemaTest {
       final ImmutableList<String> tpch = ImmutableList.<String>of("TPCH");
       viewHolderBuilder.add(new QuarkView("PART_100_PART",
           "select * from tpch.part where p_size = 110", "PART_100",
-            tpch, ImmutableList.<String>of("TPCH", "PART_100")));
+            tpch, ImmutableList.<String>of(this.getName(), "TPCH", "PART_100")));
       viewHolderBuilder.add(new QuarkView("PART_less110_part", "select * " +
           "from tpch.part where " +
           "p_size" +
               " < 110", "PART",
-            tpch, ImmutableList.<String>of("TPCH", "PART_less110")));
+            tpch, ImmutableList.<String>of(this.getName(), "TPCH", "PART_less110")));
       viewHolderBuilder.add(new QuarkView("PART_greater110_part", "select " +
           "* from tpch.part " +
           "where p_size > 110", "PART",
-            tpch, ImmutableList.<String>of("TPCH", "PART_greater110")));
+            tpch, ImmutableList.<String>of(this.getName(), "TPCH", "PART_greater110")));
       viewHolderBuilder.add(new QuarkView("PART_RETAILPRICE_PART", "select" +
           " * from tpch.part " +
           "where P_RETAILPRICE > 99.99", "PART",
-            tpch, ImmutableList.<String>of("TPCH", "PART_RETAILPRICE")));
+            tpch, ImmutableList.<String>of(this.getName(), "TPCH", "PART_RETAILPRICE")));
       viewHolderBuilder.add(new QuarkView("SALES_greater0610215_part",
           "select * from " +
               "tpch.sales where P_SALEDATE > \'2015-10-06\'", "SALES_greater0610215",
-          tpch, ImmutableList.<String>of("TPCH", "SALES_greater0610215")));
+          tpch, ImmutableList.<String>of(this.getName(), "TPCH", "SALES_greater0610215")));
       viewHolderBuilder.add(new QuarkView("PART_COMP1_PART", "select * " +
           "from tpch.part where " +
           "(P_RETAILPRICE > 19.99 OR P_PARTKEY < 100) AND P_SIZE > 70", "PART_COMP1",
-          tpch, ImmutableList.<String>of("TPCH", "PART_COMP1")));
+          tpch, ImmutableList.<String>of(this.getName(), "TPCH", "PART_COMP1")));
 
       this.views = viewHolderBuilder.build();
       super.initialize(queryContext);
@@ -216,11 +216,9 @@ public class SchemaTest {
       super(new DefaultSchema("default".toUpperCase()));
     }
 
-    public List<QuarkSchema> create(Properties info) {
-      return new ImmutableList.Builder<QuarkSchema>()
-        .add(this.getDefaultSchema())
-        .add(new TpchSchema("tpch".toUpperCase()))
-        .add(new TpchViewSchema()).build();
+    public TestFactoryResult create(Properties info) throws QuarkException {
+      return new TestFactoryResult(ImmutableList.of(this.getDefaultSchema(), new TpchSchema("tpch".toUpperCase())),
+              new TpchViewSchema(), this.getDefaultSchema());
     }
   }
 

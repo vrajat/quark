@@ -18,12 +18,7 @@ package com.qubole.quark.planner.test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.qubole.quark.QuarkException;
-import com.qubole.quark.planner.QuarkColumn;
-import com.qubole.quark.planner.MetadataSchema;
-import com.qubole.quark.planner.QuarkSchema;
-import com.qubole.quark.planner.QuarkTable;
-import com.qubole.quark.planner.QuarkView;
-import com.qubole.quark.planner.TestFactory;
+import com.qubole.quark.planner.*;
 import com.qubole.quark.planner.test.utilities.QuarkTestUtil;
 import com.qubole.quark.sql.QueryContext;
 import org.apache.calcite.schema.Table;
@@ -101,7 +96,7 @@ public class MetricsTest {
               "name='FileSystemCounters.S3_LARGE_READ_OPS' or " +
               "name='FileSystemCounters.S3_READ_OPS' or " +
               "name='FileSystemCounters.S3_WRITE_OPS'",
-          "METRICS_S3", metricsSchema, ImmutableList.<String>of("METRICS_SCHEMA", "METRICS_S3")));
+          "METRICS_S3", metricsSchema, ImmutableList.<String>of(this.NAME, "METRICS_SCHEMA", "METRICS_S3")));
       this.views = viewHolderBuilder.build();
       super.initialize(queryContext);
     }
@@ -111,10 +106,9 @@ public class MetricsTest {
     public SchemaFactory() {
       super(new MetricsSchema("metrics_schema".toUpperCase()));
     }
-    public List<QuarkSchema> create(Properties info) {
-      return new ImmutableList.Builder<QuarkSchema>()
-        .add(this.getDefaultSchema())
-        .add(new ViewSchema()).build();
+    public TestFactoryResult create(Properties info) throws QuarkException {
+      return new TestFactoryResult(ImmutableList.of(this.getDefaultSchema()),
+              new ViewSchema(), this.getDefaultSchema());
     }
   }
 
